@@ -12,13 +12,14 @@ class ServerHandler(aiozmq.rpc.AttrHandler):
 @asyncio.coroutine
 def go():
     server = yield from aiozmq.rpc.serve_rpc(
-        ServerHandler(), bind='tcp://*:*')
+        ServerHandler(), bind='tcp://127.0.0.1:*')
     server_addr = list(server.transport.bindings())[0]
 
     client = yield from aiozmq.rpc.connect_rpc(
         connect=server_addr)
 
     ret = yield from client.call.remote_func(1, 2)
+    print(ret)
     assert 3 == ret
 
     server.close()

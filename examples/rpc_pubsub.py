@@ -11,6 +11,7 @@ class Handler(aiozmq.rpc.AttrHandler):
     @aiozmq.rpc.method
     def remote_func(self, step, a: int, b: int):
         self.connected = True
+        
         print("HANDLER", step, a, b)
 
 
@@ -20,6 +21,8 @@ def go():
     subscriber = yield from aiozmq.rpc.serve_pubsub(
         handler, subscribe='topic', bind='tcp://127.0.0.1:*',
         log_exceptions=True)
+
+    #print(list(subscriber.transport.bindings()))
     subscriber_addr = list(subscriber.transport.bindings())[0]
     print("SERVE", subscriber_addr)
 

@@ -194,9 +194,9 @@ class ZmqStream:
     def _set_read_buffer_limits(self, high=None, low=None):
         if high is None:
             if low is None:
-                high = 64*1024
+                high = 64 * 1024
             else:
-                high = 4*low
+                high = 4 * low
         if low is None:
             low = high // 4
         if not high >= low >= 0:
