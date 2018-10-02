@@ -4,20 +4,15 @@ import sys
 from setuptools import setup, find_packages
 
 
-install_requires = ['pyzmq>=13.1']
+install_requires = ['pyzmq>=13.1,<17.1.2']
 
-PY_VER = sys.version_info
+tests_require = install_requires + ['msgpack>=0.5.0']
 
-if PY_VER >= (3, 4):
-    pass
-elif PY_VER >= (3, 3):
-    install_requires.append('asyncio')
-else:
-    raise RuntimeError("aiozmq doesn't support Python earlier than 3.3")
+extras_require = {'rpc': ['msgpack>=0.5.0']}
 
-tests_require = install_requires + ['msgpack-python>=0.4.0']
 
-extras_require = {'rpc': ['msgpack-python>=0.4.0']}
+if sys.version_info < (3, 5):
+    raise RuntimeError("aiozmq requires Python 3.5 or higher")
 
 
 def read(f):
@@ -35,13 +30,13 @@ def read_version():
         else:
             raise RuntimeError('Cannot find version in aiozmq/__init__.py')
 
+
 classifiers = [
     'License :: OSI Approved :: BSD License',
     'Intended Audience :: Developers',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.3',
-    'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
     'Operating System :: POSIX',
     'Operating System :: MacOS :: MacOS X',
     'Operating System :: Microsoft :: Windows',

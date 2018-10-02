@@ -1,26 +1,24 @@
+conditions: v1
+
 language: python
 
 python:
-  - "3.3"
-  - "3.4"
   - "3.5"
+  - "3.6"
 
 before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq libzmq3-dev
 
 install:
-  - pip install pip setuptools wheel
+  - pip install --upgrade pip setuptools wheel
   - python setup.py install
   - test $USE_MSGPACK == 1 && pip install msgpack-python || true
-  - pip install pyflakes
-  - pip install pep8
-  - pip install docutils
-  - pip install codecov
+  - pip install pyflakes pycodestyle docutils codecov
 
 script:
   - python -c "import zmq; print('ZMQ version:', zmq.zmq_version())"
-  - pep8 aiozmq examples tests benchmarks
+  - pycodestyle aiozmq examples tests benchmarks
   - pyflakes .
   - python setup.py check -rm
   - if python -c "import sys; sys.exit(sys.version_info < (3,5))"; then
@@ -34,20 +32,31 @@ after_success:
 env:
   matrix:
     - USE_MSGPACK=1 PYTHONASYNCIODEBUG=1
-    - USE_MSGPACK=0 PYTHONASYNCIODEBUG=1
-    - USE_MSGPACK=1 PYTHONASYNCIODEBUG=0
-    - USE_MSGPACK=0 PYTHONASYNCIODEBUG=0
+    - USE_MSGPACK= PYTHONASYNCIODEBUG=1
+    - USE_MSGPACK=1 PYTHONASYNCIODEBUG=
+    - USE_MSGPACK= PYTHONASYNCIODEBUG=
 
 cache: apt
 
-
-deploy:
-  provider: pypi
-  user: andrew.svetlov
-  password:
-    secure: Z2giKAktwJWUWcWqgTUYgwvc46UmvvbAPzhTu6gIODN35MPGGsk6lXZiAb3znWx3UBRmGATT70pk6VkywW72dvi0BBwFyacGUsZu0Rk/5MU5L/EkXwd+hSEzlBpijrxu4AJGnvyxCydau+tZFTrelfcedgZlY/XeBI9iLoW+LQk=
-  distributions: "sdist bdist_wheel"
-  on:
-    tags: true
-    all_branches: true
-    python: 3.5
+jobs:
+  fast_finish: true
+  allow_failures:
+  - python: 3.7
+  include:
+  - python: 3.7
+    dist: xenial
+    sudo: required
+  - stage: Deploy to PYPI
+    python: 3.6
+    script: skip
+    after_success: []
+    deploy:
+      provider: pypi
+      user: aio-libs-bot
+      password:
+        secure: Z2giKAktwJWUWcWqgTUYgwvc46UmvvbAPzhTu6gIODN35MPGGsk6lXZiAb3znWx3UBRmGATT70pk6VkywW72dvi0BBwFyacGUsZu0Rk/5MU5L/EkXwd+hSEzlBpijrxu4AJGnvyxCydau+tZFTrelfcedgZlY/XeBI9iLoW+LQk=
+      distributions: "sdist bdist_wheel"
+      on:
+        tags: true
+        all_branches: true
+        python: 3.6
